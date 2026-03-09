@@ -1,0 +1,46 @@
+{
+    "manifest_version": 3,
+    "name": "Dropship Tracker",
+    "version": "2.0.0",
+    "description": "Track eBay→AliExpress prices, profit, and price changes.",
+    "permissions": ["activeTab", "storage", "tabs", "downloads", "scripting"],
+    "host_permissions": [
+      "https://www.ebay.com/*",
+      "https://www.aliexpress.com/*",
+      "https://aliexpress.com/*",
+      "https://www.aliexpress.us/*",
+      "https://aliexpress.us/*"
+    ],
+    "action": {
+      "default_popup": "popup.html",
+      "default_icon": {
+        "16": "icons/icon16.png",
+        "48": "icons/icon48.png",
+        "128": "icons/icon128.png"
+      }
+    },
+    "content_scripts": [
+      {
+        "matches": ["https://www.ebay.com/itm/*"],
+        "js": ["content_ebay.js"],
+        "run_at": "document_idle"
+      },
+      {
+        "matches": [
+          "https://www.aliexpress.com/item/*",
+          "https://aliexpress.com/item/*",
+          "https://www.aliexpress.com/i/*",
+          "https://aliexpress.com/i/*",
+          "https://www.aliexpress.us/item/*",
+          "https://aliexpress.us/item/*"
+        ],
+        "js": ["content_ali.js"],
+        "run_at": "document_idle"
+      }
+    ],
+    "icons": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  }
