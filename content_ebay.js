@@ -15,7 +15,13 @@ function getEbayPrice() {
       const el = document.querySelector(sel);
       if (el) {
         const raw = el.getAttribute('content') || el.innerText || '';
-        const num = parseFloat(raw.replace(/[^0-9.]/g, ''));
+        // Strip any currency symbol/code: $, €, £, AU$, CA$, CHF, PLN, etc.
+        const cleaned = raw.replace(/[^0-9.,]/g, '').replace(',', '.');
+        // Handle European decimal format: "1.234,56" → "1234.56"
+        const normalized = cleaned.match(/\d{1,3}(?:\.\d{3})+,\d{2}$/)
+          ? cleaned.replace(/\./g, '').replace(',', '.')
+          : cleaned.replace(/,(?=\d{2}$)/, '.');
+        const num = parseFloat(normalized);
         if (!isNaN(num) && num > 0) return num;
       }
     }
@@ -33,12 +39,17 @@ function getEbayPrice() {
   function getEbayTitle() {
     const el = document.querySelector('h1.x-item-title__mainTitle span, h1[itemprop="name"], #itemTitle');
     if (el) return el.innerText.replace('Details about', '').trim().substring(0, 80);
-    return document.title.replace(' | eBay', '').trim().substring(0, 80);
+    return document.title.replace(/\s*\|\s*eBay\s*$/i, '').trim().substring(0, 80);
   }
   
   function normalizeUrl(url) {
     const m = url.match(/\/itm\/(\d+)/);
-    return m ? `https://www.ebay.com/itm/${m[1]}` : url.split('?')[0];
+    if (m) {
+      // Preserve the original domain (ebay.de, ebay.co.uk, etc.)
+      const domain = url.match(/https?:\/\/(www\.ebay\.[a-z.]+)/)?.[1] || 'www.ebay.com';
+      return `https://${domain}/itm/${m[1]}`;
+    }
+    return url.split('?')[0];
   }
   
   // ── Auto-save price on every page load ──────────────────────────────────────
